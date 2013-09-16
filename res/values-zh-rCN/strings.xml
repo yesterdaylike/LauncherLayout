@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">桌面布局</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="DefaultWorkspace">default_workspace.xml</string>
+    <string name="LauncherDb">数据库</string>
+    <string name="Favorite">Favorite</string>
+    <string name="Appwidget">小部件</string>
+    <string name="About">关于</string>
+    
+</resources>
