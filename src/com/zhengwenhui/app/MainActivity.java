@@ -3,39 +3,38 @@ package com.zhengwenhui.app;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 public class MainActivity extends Activity {
 
-	private TextView messageTextView;
+	//private TextView messageTextView;
+	private StringBuilder mStringBuilder;
+	private ListView listview;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.contect);
-		messageTextView = (TextView) findViewById(R.id.message);
+		listview = (ListView) findViewById(R.id.listview);
 		getDefaultWorkspace();
 	}
 
@@ -51,8 +50,6 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
 		//setContentView(R.layout.contect);
-		messageTextView = (TextView) findViewById(R.id.message);
-		messageTextView.setText("");
 		//layout = R.layout.contect;
 
 		switch (item.getItemId()) {
@@ -78,14 +75,14 @@ public class MainActivity extends Activity {
 	}
 
 	public void getDefaultWorkspace(){
-		this.setTitle("default_workspace.xml");
+		this.setTitle(R.string.DefaultWorkspace);
 		final String AUTHORITY = "com.android.launcher2.settings";  
 		final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true");  
 
 		String appwidgetBegin = "    <appwidget\n";
 		String favoriteBegin = "    <favorite\n";
 		String favoritesEnd = "</favorites>";
-		String tagEnd = "        />\n\n";
+		String tagEnd = "        />";
 		String attributeEnd = "\"\n";
 
 		String packageName = "        launcher:packageName=\"";
@@ -108,18 +105,30 @@ public class MainActivity extends Activity {
 		String spanY_db;
 		String[] in = {"",""};
 
-
 		Cursor cursor = getContentResolver().query(CONTENT_URI,  
 				null,  
 				null,  
 				null, 
 				null);
+		
+		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map;
+		StringBuilder builder = new StringBuilder();
+		mStringBuilder =  new StringBuilder();
+		
+		//builder.delete(0, builder.length());
 
 		if(cursor!=null && cursor.getCount()>0){
 
-			messageTextView.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
-			messageTextView.append("<favorites xmlns:launcher=\"http://schemas.android.com/apk/res/com.android.launcher\">\n");
+			builder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
+			builder.append("<favorites xmlns:launcher=\"http://schemas.android.com/apk/res/com.android.launcher\">");
 
+			map = new HashMap<String, Object>();
+			map.put("text", builder.toString());
+			listData.add(map);
+			mStringBuilder.append(builder);
+			builder.delete(0, builder.length());
+			
 			while (cursor.moveToNext()) {
 
 				itemtype = cursor.getInt(9);
@@ -137,101 +146,121 @@ public class MainActivity extends Activity {
 					if(intent!=null){
 						in = intent.substring(intent.indexOf("component=")+10, intent.indexOf(";end")).split("/");
 					}
-					messageTextView.append("    <!-- ");
-					messageTextView.append(title);
-					messageTextView.append(" -->\n");
+					builder.append("    <!-- ");
+					builder.append(title);
+					builder.append(" -->\n");
 
-					messageTextView.append(favoriteBegin);
+					builder.append(favoriteBegin);
 
-					messageTextView.append(packageName);
-					messageTextView.append(in[0]);
-					messageTextView.append(attributeEnd);
+					builder.append(packageName);
+					builder.append(in[0]);
+					builder.append(attributeEnd);
 
-					messageTextView.append(className);
+					builder.append(className);
 					if(in[1].startsWith(".")){
-						messageTextView.append(in[0]);
+						builder.append(in[0]);
 					}
-					messageTextView.append(in[1]);
-					messageTextView.append(attributeEnd);
+					builder.append(in[1]);
+					builder.append(attributeEnd);
 
 					if(container_db.equals("-101")){
-						messageTextView.append(container);
-						messageTextView.append(container_db);
-						messageTextView.append(attributeEnd);
+						builder.append(container);
+						builder.append(container_db);
+						builder.append(attributeEnd);
 					}
 
-					messageTextView.append(screen);
-					messageTextView.append(screen_db);
-					messageTextView.append(attributeEnd);
+					builder.append(screen);
+					builder.append(screen_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(x);
-					messageTextView.append(cellX_db);
-					messageTextView.append(attributeEnd);
+					builder.append(x);
+					builder.append(cellX_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(y);
-					messageTextView.append(cellY_db);
-					messageTextView.append(attributeEnd);
+					builder.append(y);
+					builder.append(cellY_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(tagEnd);
+					builder.append(tagEnd);
+					
+					map = new HashMap<String, Object>();
+					map.put("text", builder.toString());
+					listData.add(map);
+					mStringBuilder.append(builder);
+					builder.delete(0, builder.length());
+					
 					break;
 				case 4:
-					Log.i("catch zhengwenhui", ""+intent);
-
 					if(intent!=null){
 						in = intent.substring(intent.indexOf("{")+1, intent.indexOf("}")).split("/");
 					}
 
-					messageTextView.append(appwidgetBegin);
+					builder.append(appwidgetBegin);
 
-					messageTextView.append(packageName);
-					messageTextView.append(in[0]);
-					messageTextView.append(attributeEnd);
+					builder.append(packageName);
+					builder.append(in[0]);
+					builder.append(attributeEnd);
 
-					messageTextView.append(className);
+					builder.append(className);
 					if(in[1].startsWith(".")){
-						messageTextView.append(in[0]);
+						builder.append(in[0]);
 					}
-					messageTextView.append(in[1]);
-					messageTextView.append(attributeEnd);
+					builder.append(in[1]);
+					builder.append(attributeEnd);
 
-					messageTextView.append(screen);
-					messageTextView.append(screen_db);
-					messageTextView.append(attributeEnd);
+					builder.append(screen);
+					builder.append(screen_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(x);
-					messageTextView.append(cellX_db);
-					messageTextView.append(attributeEnd);
+					builder.append(x);
+					builder.append(cellX_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(y);
-					messageTextView.append(cellY_db);
-					messageTextView.append(attributeEnd);
+					builder.append(y);
+					builder.append(cellY_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(spanX);
-					messageTextView.append(spanX_db);
-					messageTextView.append(attributeEnd);
+					builder.append(spanX);
+					builder.append(spanX_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(spanY);
-					messageTextView.append(spanY_db);
-					messageTextView.append(attributeEnd);
+					builder.append(spanY);
+					builder.append(spanY_db);
+					builder.append(attributeEnd);
 
-					messageTextView.append(tagEnd);
+					builder.append(tagEnd);
+					
+					map = new HashMap<String, Object>();
+					map.put("text", builder.toString());
+					listData.add(map);
+					mStringBuilder.append(builder);
+					builder.delete(0, builder.length());
+					
 					break;
 				default:
 					break;
 				}
 			}
-
-			messageTextView.append(favoritesEnd);
+			
+			map = new HashMap<String, Object>();
+			map.put("text", favoritesEnd);
+			listData.add(map);
+			mStringBuilder.append(favoritesEnd);
+			builder.delete(0, builder.length());
 		}
+		
+		SimpleAdapter mSchedule = new SimpleAdapter(this,
+				listData,//数据来源   
+				R.layout.listitem,
+				new String[] {"text"},   
+				new int[] {R.id.message});
+		listview.setAdapter(mSchedule);
+		
 		cursor.close();
 		writeFile();
-	}  
+	}
 
 	private void writeFile() {
-
-		Log.e("zhengwenhui", Environment.getExternalStorageDirectory().getPath()  
-				+ "/default_workspace.xml");
-
 		File targetFile = new File(Environment.getExternalStorageDirectory().getPath()  
 				+ "/default_workspace.xml");  
 		if (targetFile.exists()) {  
@@ -243,10 +272,10 @@ public class MainActivity extends Activity {
 			osw = new OutputStreamWriter(  
 					new FileOutputStream(targetFile),"utf-8");  
 
-			osw.write(messageTextView.getText().toString());  
+			osw.write(mStringBuilder.toString());  
 			osw.flush();  
 			osw.close();  
-
+			mStringBuilder.delete(0, mStringBuilder.length());
 		} catch (Exception e) {  
 			// TODO Auto-generated catch block  
 			e.printStackTrace();  
@@ -254,9 +283,7 @@ public class MainActivity extends Activity {
 	}   
 
 	public void getLauncherDb(){
-
-		this.setTitle("LauncherDb");
-
+		this.setTitle(R.string.LauncherDb);
 		final String AUTHORITY = "com.android.launcher2.settings";  
 		final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true");  
 
@@ -267,87 +294,99 @@ public class MainActivity extends Activity {
 				"screen");
 
 		int mColumnCount = cursor.getColumnCount();
-		Log.v(""+mColumnCount, "   "+mColumnCount);
 
-		//java.text.DecimalFormat format = new java.text.MessageFormat(template)
-
+		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map;
+		StringBuilder builder = new StringBuilder();
+		
 		if(cursor!=null && cursor.getCount()>0){
 			while (cursor.moveToNext()) {
+				builder.delete(0, builder.length());
+				
+				builder.append(format(cursor.getColumnName(0)));
+				builder.append(": "+String.valueOf(cursor.getInt(0)));
+				builder.append("\n");
 
-				messageTextView.append("\n-------------------------------------------------\n");
-				messageTextView.append(format(cursor.getColumnName(0)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(0)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(1)));
+				builder.append(": "+cursor.getString(1));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(1)));
-				messageTextView.append(": "+cursor.getString(1));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(2)));
+				builder.append(": "+cursor.getString(2));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(2)));
-				messageTextView.append(": "+cursor.getString(2));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(3)));
+				builder.append(": "+String.valueOf(cursor.getInt(3)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(3)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(3)));
-				messageTextView.append("\n");
-
-				messageTextView.append(format(cursor.getColumnName(4)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(4)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(4)));
+				builder.append(": "+String.valueOf(cursor.getInt(4)));
+				builder.append("\n");
 
 
-				messageTextView.append(format(cursor.getColumnName(5)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(5)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(5)));
+				builder.append(": "+String.valueOf(cursor.getInt(5)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(6)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(6)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(6)));
+				builder.append(": "+String.valueOf(cursor.getInt(6)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(7)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(7)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(7)));
+				builder.append(": "+String.valueOf(cursor.getInt(7)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(8)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(8)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(8)));
+				builder.append(": "+String.valueOf(cursor.getInt(8)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(9)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(9)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(9)));
+				builder.append(": "+String.valueOf(cursor.getInt(9)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(10)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(10)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(10)));
+				builder.append(": "+String.valueOf(cursor.getInt(10)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(11)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(11)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(11)));
+				builder.append(": "+String.valueOf(cursor.getInt(11)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(12)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(12)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(12)));
+				builder.append(": "+String.valueOf(cursor.getInt(12)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(13)));
-				messageTextView.append(": "+cursor.getString(13));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(13)));
+				builder.append(": "+cursor.getString(13));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(14)));
-				messageTextView.append(": "+cursor.getString(14));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(14)));
+				builder.append(": "+cursor.getString(14));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(15)));
-				messageTextView.append(": "+String.valueOf(cursor.getBlob(15)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(15)));
+				builder.append(": "+String.valueOf(cursor.getBlob(15)));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(16)));
-				messageTextView.append(": "+cursor.getString(16));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(16)));
+				builder.append(": "+cursor.getString(16));
+				builder.append("\n");
 
-				messageTextView.append(format(cursor.getColumnName(17)));
-				messageTextView.append(": "+String.valueOf(cursor.getInt(17)));
-				messageTextView.append("\n");
+				builder.append(format(cursor.getColumnName(17)));
+				builder.append(": "+String.valueOf(cursor.getInt(17)));
+
+				map = new HashMap<String, Object>();
+				//map.put("img", getIcon(packageName, name));
+				map.put("text", builder.toString());
+				listData.add(map);
 			}
+			
+			SimpleAdapter mSchedule = new SimpleAdapter(this,
+					listData,//数据来源   
+					R.layout.listitem,
+					new String[] {"text"},   
+					new int[] {R.id.message});
+			listview.setAdapter(mSchedule);
 		}
 		cursor.close();
 	}  
@@ -357,71 +396,81 @@ public class MainActivity extends Activity {
 	}
 
 	private void getFavorite(){
-
-		this.setTitle("Favorite");
+		this.setTitle(R.string.Favorite);
 
 		final PackageManager packageManager = getPackageManager();
 		final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
 		mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 		List<ResolveInfo> apps = packageManager.queryIntentActivities(mainIntent, 0);
 
-		String packageName;
-		String name;
-		int i = 0;
+		ImageSimpleAdapter mSchedule = new ImageSimpleAdapter(this,
+				getFavoriteData(apps),//数据来源   
+				R.layout.listitem,
+				new String[] {"img","text"},   
+				new int[] {R.id.image, R.id.message});
+		listview.setAdapter(mSchedule);
+
+	}
+
+	private List<Map<String, Object>> getFavoriteData(List<ResolveInfo> apps) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map;
+
+		String packageName, name, text;
 		java.text.DecimalFormat format = new java.text.DecimalFormat("000"); 
-		messageTextView.append("---------Favorite---------\n");
 
 		for (ResolveInfo resolveInfo : apps) {
 			packageName = resolveInfo.activityInfo.packageName;
 			name = resolveInfo.activityInfo.name;
-			Log.v(""+i, packageName+"   "+name);
-			messageTextView.append(format.format(i)+".\n           "+packageName+"\n           "+name+"\n\n");
-			i++;
+			text = "              "+packageName+"\n              "+name;
+
+			map = new HashMap<String, Object>();
+			map.put("img", packageName+","+name);
+			map.put("text", text);
+			list.add(map);
 		}
+		return list;
 	}
 
 	private void getAppwidget(){
-
-		this.setTitle("Appwidget");
+		this.setTitle(R.string.Appwidget);
 
 		AppWidgetManager mAppWidgetManager = AppWidgetManager.getInstance(this);
-		List<AppWidgetProviderInfo> list = mAppWidgetManager.getInstalledProviders();
+		List<AppWidgetProviderInfo> listAppWidget = mAppWidgetManager.getInstalledProviders();
 
 		String packageName;
-		String name;
+		String name, text;
 		int i = 0;
+		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
+		Map<String, Object> map;
 
 		java.text.DecimalFormat format = new java.text.DecimalFormat("000"); 
 
-		messageTextView.append("---------Appwidget---------\n");
-		for (AppWidgetProviderInfo appWidgetProviderInfo : list)
+		for (AppWidgetProviderInfo appWidgetProviderInfo : listAppWidget)
 		{
 			name = appWidgetProviderInfo.provider.getClassName();
 			packageName = appWidgetProviderInfo.provider.getPackageName();
 
-			Log.v(""+i, packageName+"   "+name);
-			messageTextView.append(format.format(i)+".\n           "+packageName+"\n           "+name+"\n\n");
+			text = format.format(i)+".\n           "+packageName+"\n           "+name;
+
+			map = new HashMap<String, Object>();
+			map.put("img", packageName+","+name);
+			map.put("text", text);
+			listData.add(map);
 			i++;
 		}
 
-		messageTextView.setSelected(true);
-
+		ImageSimpleAdapter mSchedule = new ImageSimpleAdapter(this,
+				listData,//数据来源   
+				R.layout.listitem,
+				new String[] {"img","text"},
+				new int[] {R.id.image,R.id.message});
+		listview.setAdapter(mSchedule);
 	}
+
 	private void getAbout(){
-		this.setTitle("About");
+		//this.setTitle(R.string.About);
 		Uri uri = Uri.parse("http://blog.csdn.net/yesterdaylike/article/details/8961855");  
 		startActivity(new Intent(Intent.ACTION_VIEW,uri));
 	}
-	
-	/*private void getIcon(String pkg, String cls){
-		ComponentName  name = new ComponentName(pkg, cls);
-		PackageManager mPackageManager = getPackageManager();
-		try {
-			Drawable drawable = mPackageManager.getActivityIcon(name);
-			mImage.setImageDrawable(drawable);
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
 }
