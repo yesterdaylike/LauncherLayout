@@ -110,12 +110,12 @@ public class MainActivity extends Activity {
 				null,  
 				null, 
 				null);
-		
+
 		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
 		Map<String, Object> map;
 		StringBuilder builder = new StringBuilder();
 		mStringBuilder =  new StringBuilder();
-		
+
 		//builder.delete(0, builder.length());
 
 		if(cursor!=null && cursor.getCount()>0){
@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
 			listData.add(map);
 			mStringBuilder.append(builder);
 			builder.delete(0, builder.length());
-			
+
 			while (cursor.moveToNext()) {
 
 				itemtype = cursor.getInt(9);
@@ -182,13 +182,13 @@ public class MainActivity extends Activity {
 					builder.append(attributeEnd);
 
 					builder.append(tagEnd);
-					
+
 					map = new HashMap<String, Object>();
 					map.put("text", builder.toString());
 					listData.add(map);
 					mStringBuilder.append(builder);
 					builder.delete(0, builder.length());
-					
+
 					break;
 				case 4:
 					if(intent!=null){
@@ -229,33 +229,33 @@ public class MainActivity extends Activity {
 					builder.append(attributeEnd);
 
 					builder.append(tagEnd);
-					
+
 					map = new HashMap<String, Object>();
 					map.put("text", builder.toString());
 					listData.add(map);
 					mStringBuilder.append(builder);
 					builder.delete(0, builder.length());
-					
+
 					break;
 				default:
 					break;
 				}
 			}
-			
+
 			map = new HashMap<String, Object>();
 			map.put("text", favoritesEnd);
 			listData.add(map);
 			mStringBuilder.append(favoritesEnd);
 			builder.delete(0, builder.length());
 		}
-		
+
 		SimpleAdapter mSchedule = new SimpleAdapter(this,
 				listData,//数据来源   
 				R.layout.listitem,
 				new String[] {"text"},   
 				new int[] {R.id.message});
 		listview.setAdapter(mSchedule);
-		
+
 		cursor.close();
 		writeFile();
 	}
@@ -298,11 +298,11 @@ public class MainActivity extends Activity {
 		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
 		Map<String, Object> map;
 		StringBuilder builder = new StringBuilder();
-		
+
 		if(cursor!=null && cursor.getCount()>0){
 			while (cursor.moveToNext()) {
 				builder.delete(0, builder.length());
-				
+
 				builder.append(format(cursor.getColumnName(0)));
 				builder.append(": "+String.valueOf(cursor.getInt(0)));
 				builder.append("\n");
@@ -380,11 +380,11 @@ public class MainActivity extends Activity {
 				map.put("text", builder.toString());
 				listData.add(map);
 			}
-			
+
 			SimpleAdapter mSchedule = new SimpleAdapter(this,
 					listData,//数据来源   
 					R.layout.listitem,
-					new String[] {"text"},   
+					new String[] {"text"},
 					new int[] {R.id.message});
 			listview.setAdapter(mSchedule);
 		}
@@ -404,9 +404,9 @@ public class MainActivity extends Activity {
 		List<ResolveInfo> apps = packageManager.queryIntentActivities(mainIntent, 0);
 
 		ImageSimpleAdapter mSchedule = new ImageSimpleAdapter(this,
-				getFavoriteData(apps),//数据来源   
+				getFavoriteData(apps),
 				R.layout.listitem,
-				new String[] {"img","text"},   
+				new String[] {"img","text"},
 				new int[] {R.id.image, R.id.message});
 		listview.setAdapter(mSchedule);
 
