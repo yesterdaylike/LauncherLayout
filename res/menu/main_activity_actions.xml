@@ -17,6 +17,10 @@
         android:showAsAction="ifRoom"
         android:title="@string/LauncherDb"/>
     <item
+        android:id="@+id/Refresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/Refresh"/>
+    <item
         android:id="@+id/About"
         android:title="@string/About"/>
 

@@ -36,6 +36,8 @@ public class MainActivity extends Activity {
 	final String AUTHORITY = "com.android.launcher2.settings";  
 	final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true"); 
 
+	private int launcherVersion  = 2;
+	private int index  = R.id.DefaultWorkspace;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,13 +73,36 @@ public class MainActivity extends Activity {
 		case R.id.Appwidget:
 			getAppwidget();
 			break;
+		case R.id.Refresh:
+			getRefresh(index);
+			break;
 		case R.id.About:
 			getAbout();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+		index = item.getItemId();
 		return true;
+	}
+
+	public void getRefresh(int index){
+		switch (index) {
+		case R.id.DefaultWorkspace:
+			getDefaultWorkspace();
+			break;
+		case R.id.LauncherDb:
+			getLauncherDb();
+			break;
+		case R.id.Favorite:
+			getFavorite();
+			break;
+		case R.id.Appwidget:
+			getAppwidget();
+			break;
+		default:
+			break;
+		}
 	}
 
 	public void getDefaultWorkspace(){
@@ -121,6 +146,7 @@ public class MainActivity extends Activity {
 					null,  
 					null, 
 					null);
+			launcherVersion = 3;
 		}
 
 		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
@@ -203,7 +229,10 @@ public class MainActivity extends Activity {
 
 					break;
 				case 4:
-					if(intent!=null){
+					if( 3==launcherVersion ){
+						in = cursor.getString(18).split("/");
+					}
+					else if(intent!=null){
 						in = intent.substring(intent.indexOf("{")+1, intent.indexOf("}")).split("/");
 					}
 
@@ -311,6 +340,7 @@ public class MainActivity extends Activity {
 					null,  
 					null, 
 					"screen");
+			launcherVersion = 3;
 		}
 
 		//int mColumnCount = cursor.getColumnCount();
@@ -394,6 +424,17 @@ public class MainActivity extends Activity {
 
 				builder.append(format(cursor.getColumnName(17)));
 				builder.append(": "+String.valueOf(cursor.getInt(17)));
+
+				if( 3 == launcherVersion ){
+					builder.append("\n");
+
+					builder.append(format(cursor.getColumnName(18)));
+					builder.append(": "+cursor.getString(18));
+					builder.append("\n");
+
+					builder.append(format(cursor.getColumnName(19)));
+					builder.append(": "+cursor.getString(19));
+				}
 
 				map = new HashMap<String, Object>();
 				//map.put("img", getIcon(packageName, name));
