@@ -30,6 +30,12 @@ public class MainActivity extends Activity {
 	private StringBuilder mStringBuilder;
 	private ListView listview;
 
+	final String AUTHORITY3 = "com.android.launcher3.settings";  
+	final Uri CONTENT_URI3 = Uri.parse("content://" +  AUTHORITY3 + "/favorites?notify=true");
+
+	final String AUTHORITY = "com.android.launcher2.settings";  
+	final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true"); 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -76,12 +82,10 @@ public class MainActivity extends Activity {
 
 	public void getDefaultWorkspace(){
 		this.setTitle(R.string.DefaultWorkspace);
-		final String AUTHORITY = "com.android.launcher2.settings";  
-		final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true");  
 
 		String appwidgetBegin = "    <appwidget\n";
 		String favoriteBegin = "    <favorite\n";
-		String favoritesEnd = "</favorites>";
+		String favoritesEnd = "\n</favorites>";
 		String tagEnd = "        />";
 		String attributeEnd = "\"\n";
 
@@ -110,6 +114,14 @@ public class MainActivity extends Activity {
 				null,  
 				null, 
 				null);
+
+		if( null == cursor ){
+			cursor = getContentResolver().query(CONTENT_URI3,  
+					null,  
+					null,  
+					null, 
+					null);
+		}
 
 		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
 		Map<String, Object> map;
@@ -146,7 +158,7 @@ public class MainActivity extends Activity {
 					if(intent!=null){
 						in = intent.substring(intent.indexOf("component=")+10, intent.indexOf(";end")).split("/");
 					}
-					builder.append("    <!-- ");
+					builder.append("\n    <!-- ");
 					builder.append(title);
 					builder.append(" -->\n");
 
@@ -256,7 +268,9 @@ public class MainActivity extends Activity {
 				new int[] {R.id.message});
 		listview.setAdapter(mSchedule);
 
-		cursor.close();
+		if( null != cursor ){
+			cursor.close();
+		}
 		writeFile();
 	}
 
@@ -284,8 +298,6 @@ public class MainActivity extends Activity {
 
 	public void getLauncherDb(){
 		this.setTitle(R.string.LauncherDb);
-		final String AUTHORITY = "com.android.launcher2.settings";  
-		final Uri CONTENT_URI = Uri.parse("content://" +  AUTHORITY + "/favorites?notify=true");  
 
 		Cursor cursor = getContentResolver().query(CONTENT_URI,  
 				null,  
@@ -293,7 +305,15 @@ public class MainActivity extends Activity {
 				null, 
 				"screen");
 
-		int mColumnCount = cursor.getColumnCount();
+		if( null == cursor ){
+			cursor = getContentResolver().query(CONTENT_URI3,  
+					null,  
+					null,  
+					null, 
+					"screen");
+		}
+
+		//int mColumnCount = cursor.getColumnCount();
 
 		List<Map<String, Object>> listData = new ArrayList<Map<String, Object>>();
 		Map<String, Object> map;
@@ -388,7 +408,10 @@ public class MainActivity extends Activity {
 					new int[] {R.id.message});
 			listview.setAdapter(mSchedule);
 		}
-		cursor.close();
+
+		if( null != cursor ){
+			cursor.close();
+		}
 	}  
 
 	private String format(String object){
